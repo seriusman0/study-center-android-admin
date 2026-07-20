@@ -1,0 +1,6 @@
+appId: com.studycenter.admin.study_center_admin
+---
+- launchApp
+- assertVisible: "Masuk"
+- tapOn: "Masuk"
+- assertVisible: "Dashboard"

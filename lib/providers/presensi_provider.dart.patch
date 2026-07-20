@@ -1,0 +1,18 @@
+--- lib/providers/presensi_provider.dart
++++ lib/providers/presensi_provider.dart
+@@ -35,8 +35,16 @@
+     _isLoading = true;
+     notifyListeners();
+     try {
+-      await apiService.dio.post('/presensi', data: data);
++      final formData = FormData.fromMap(data);
++      if (data['foto_path'] != null) {
++        formData.files.add(MapEntry(
++          'foto',
++          await MultipartFile.fromFile(data['foto_path']),
++        ));
++      }
++      await apiService.dio.post('/presensi', data: formData);
+       await fetchPresensi();
+       return true;
+     } catch (e) {

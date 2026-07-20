@@ -1,0 +1,46 @@
+appId: com.studycenter.admin.study_center_admin
+---
+- launchApp
+- tapOn: "Username atau Email"
+- inputText: "admin@studycenter.com"
+- tapOn: "Password"
+- inputText: "password"
+- tapOn: "Masuk"
+- assertVisible: "Dashboard"
+
+# Open Drawer
+- tapOn:
+    point: 8%, 8%
+
+- tapOn: "Manajemen Cabang"
+- assertVisible: "Manajemen Cabang"
+
+# Add Cabang
+- tapOn: "Tambah Cabang"
+- assertVisible: "Tambah Cabang"
+- tapOn: "Nama Cabang"
+- inputText: "Cabang Maestro"
+- tapOn: "Alamat"
+- inputText: "Alamat Maestro"
+- tapOn: "Simpan"
+
+# Check if added
+- assertVisible: "Cabang Maestro"
+
+# Edit Cabang
+- tapOn:
+    id: "Edit Cabang" # or text
+- assertVisible: "Edit Cabang"
+- tapOn: "Nama Cabang"
+- eraseText: 15
+- inputText: "Cabang Edit"
+- tapOn: "Simpan"
+
+- assertVisible: "Cabang Edit"
+
+# Delete Cabang
+- tapOn:
+    id: "Hapus Cabang"
+- assertVisible: "Hapus Cabang?"
+- tapOn: "Hapus"
+- assertNotVisible: "Cabang Edit"

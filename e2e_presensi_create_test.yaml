@@ -1,0 +1,8 @@
+appId: com.studycenter.admin.study_center_admin
+---
+- tapOn: "komputer"
+- waitForAnimationToEnd
+- takeScreenshot: after_kelas_select
+- scroll
+- waitForAnimationToEnd
+- takeScreenshot: after_kelas_scroll
