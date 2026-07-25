@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import '../models/cabang_model.dart';
 import '../services/api_service.dart';
 
@@ -13,6 +14,11 @@ class CabangProvider extends ChangeNotifier {
   List<CabangModel> get cabangs => _cabangs;
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  void clearError() {
+    _error = null;
+    notifyListeners();
+  }
 
   Future<void> fetchCabangs() async {
     _isLoading = true;
@@ -39,7 +45,11 @@ class CabangProvider extends ChangeNotifier {
       await fetchCabangs();
       return true;
     } catch (e) {
-      _error = e.toString();
+      if (e is DioException && e.response?.data != null && e.response?.data is Map) {
+        _error = e.response?.data['message'] ?? e.toString();
+      } else {
+        _error = e.toString();
+      }
       _isLoading = false;
       notifyListeners();
       return false;
@@ -54,7 +64,11 @@ class CabangProvider extends ChangeNotifier {
       await fetchCabangs();
       return true;
     } catch (e) {
-      _error = e.toString();
+      if (e is DioException && e.response?.data != null && e.response?.data is Map) {
+        _error = e.response?.data['message'] ?? e.toString();
+      } else {
+        _error = e.toString();
+      }
       _isLoading = false;
       notifyListeners();
       return false;
@@ -69,7 +83,11 @@ class CabangProvider extends ChangeNotifier {
       await fetchCabangs();
       return true;
     } catch (e) {
-      _error = e.toString();
+      if (e is DioException && e.response?.data != null && e.response?.data is Map) {
+        _error = e.response?.data['message'] ?? e.toString();
+      } else {
+        _error = e.toString();
+      }
       _isLoading = false;
       notifyListeners();
       return false;

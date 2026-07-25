@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../constants/app_colors.dart';
 import 'cabang/cabang_screen.dart';
 import 'mata_pelajaran/mata_pelajaran_screen.dart';
@@ -11,6 +13,7 @@ import 'certificate/certificate_template_screen.dart';
 import 'nametag/nametag_screen.dart';
 import 'roles_permissions/roles_screen.dart';
 import 'college_jurnal/college_jurnal_admin_screen.dart';
+import '../main.dart';
 
 class MainDrawer extends StatelessWidget {
   const MainDrawer({super.key});
@@ -45,6 +48,20 @@ class MainDrawer extends StatelessWidget {
           _buildDrawerItem(context, Icons.badge, 'Name Tags', const NametagScreen()),
           _buildDrawerItem(context, Icons.admin_panel_settings, 'Roles & Permissions', const RolesScreen()),
           _buildDrawerItem(context, Icons.school, 'College Jurnal', const CollegeJurnalAdminScreen()),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout, color: AppColors.error),
+            title: const Text('Keluar', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.error)),
+            onTap: () async {
+              await Provider.of<AuthProvider>(context, listen: false).logout();
+              if (context.mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const AuthWrapper()),
+                  (route) => false,
+                );
+              }
+            },
+          ),
         ],
       ),
     );

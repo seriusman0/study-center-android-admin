@@ -52,30 +52,46 @@ class _KelasMasterScreenState extends State<KelasMasterScreen> {
                       ],
                     )
                   : ListView.builder(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 88),
                       itemCount: listKelas.length,
                       itemBuilder: (context, index) {
                         final kelas = listKelas[index];
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: kelas.isActive ? AppColors.primaryLight.withOpacity(0.1) : Colors.grey.shade200,
-                              child: Icon(Icons.class_, color: kelas.isActive ? AppColors.primaryLight : Colors.grey),
-                            ),
-                            title: Text(kelas.nama, style: const TextStyle(fontWeight: FontWeight.bold)),
-                            subtitle: Text('${kelas.cabangNama ?? 'Semua Cabang'} - ${kelas.isActive ? 'Aktif' : 'Non-aktif'}'),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Row(
                               children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit, color: AppColors.primary),
-                                  onPressed: () => _showDialog(context, provider, kelas: kelas),
+                                CircleAvatar(
+                                  backgroundColor: kelas.isActive ? AppColors.primaryLight.withOpacity(0.1) : Colors.grey.shade200,
+                                  child: Icon(Icons.class_, color: kelas.isActive ? AppColors.primaryLight : Colors.grey),
                                 ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete, color: AppColors.error),
-                                  onPressed: () => _confirmDelete(context, provider, kelas.id),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(kelas.nama, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                      const SizedBox(height: 4),
+                                      Text('${kelas.cabangNama ?? 'Semua Cabang'} - ${kelas.isActive ? 'Aktif' : 'Non-aktif'}', style: TextStyle(color: Colors.grey.shade600)),
+                                    ],
+                                  ),
+                                ),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      tooltip: 'edit_${kelas.nama}',
+                                      icon: const Icon(Icons.edit, color: AppColors.primary),
+                                      onPressed: () => _showDialog(context, provider, kelas: kelas),
+                                    ),
+                                    IconButton(
+                                      tooltip: 'delete_${kelas.nama}',
+                                      icon: const Icon(Icons.delete, color: AppColors.error),
+                                      onPressed: () => _confirmDelete(context, provider, kelas.id),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -101,7 +117,8 @@ class _KelasMasterScreenState extends State<KelasMasterScreen> {
 
     showDialog(
       context: context,
-      builder: (context) {
+      barrierDismissible: false,
+      builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setStateBuilder) {
             return AlertDialog(
@@ -110,25 +127,35 @@ class _KelasMasterScreenState extends State<KelasMasterScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    TextField(
-                      controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Nama Kelas'),
+                    Semantics(
+                      identifier: 'input_nama_kelas',
+                      child: TextField(
+                        controller: nameController,
+                        decoration: const InputDecoration(labelText: 'Nama Kelas'),
+                      ),
                     ),
                     const SizedBox(height: 12),
-                    DropdownButtonFormField<int>(
-                      value: selectedCabangId,
-                      decoration: const InputDecoration(labelText: 'Pilih Cabang'),
-                      items: blogProvider.cabangs.map((c) => DropdownMenuItem(value: c.id, child: Text(c.nama))).toList(),
-                      onChanged: (val) {
-                        setStateBuilder(() {
-                          selectedCabangId = val;
-                        });
-                      },
+                    Semantics(
+                      identifier: 'input_cabang_kelas',
+                      child: DropdownButtonFormField<int>(
+                        value: selectedCabangId,
+                        isExpanded: true,
+                        decoration: const InputDecoration(labelText: 'Pilih Cabang'),
+                        items: blogProvider.cabangs.map((c) => DropdownMenuItem(value: c.id, child: Text(c.nama))).toList(),
+                        onChanged: (val) {
+                          setStateBuilder(() {
+                            selectedCabangId = val;
+                          });
+                        },
+                      ),
                     ),
                     const SizedBox(height: 12),
-                    TextField(
-                      controller: descController,
-                      decoration: const InputDecoration(labelText: 'Deskripsi'),
+                    Semantics(
+                      identifier: 'input_desc_kelas',
+                      child: TextField(
+                        controller: descController,
+                        decoration: const InputDecoration(labelText: 'Deskripsi'),
+                      ),
                     ),
                     const SizedBox(height: 12),
                     SwitchListTile(
@@ -145,7 +172,7 @@ class _KelasMasterScreenState extends State<KelasMasterScreen> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Navigator.pop(dialogContext),
                   child: const Text('Batal'),
                 ),
                 ElevatedButton(
@@ -166,8 +193,17 @@ class _KelasMasterScreenState extends State<KelasMasterScreen> {
                     } else {
                       success = await provider.updateKelasMaster(kelas.id, data);
                     }
-                    if (mounted && success) {
-                      Navigator.pop(context);
+                    if (dialogContext.mounted) {
+                      if (success) {
+                        Navigator.pop(dialogContext);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Kelas disimpan'), backgroundColor: Colors.green));
+                        }
+                      } else {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(provider.error ?? 'Gagal menyimpan'), backgroundColor: AppColors.error));
+                        }
+                      }
                     }
                   },
                   child: const Text('Simpan'),
@@ -183,20 +219,29 @@ class _KelasMasterScreenState extends State<KelasMasterScreen> {
   void _confirmDelete(BuildContext context, KelasMasterProvider provider, int id) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Hapus Kelas?'),
         content: const Text('Tindakan ini tidak dapat dibatalkan.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Batal'),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error, foregroundColor: Colors.white),
             onPressed: () async {
               final success = await provider.deleteKelasMaster(id);
-              if (mounted && success) {
-                Navigator.pop(context);
+              if (dialogContext.mounted) {
+                if (success) {
+                  Navigator.pop(dialogContext);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Kelas dihapus'), backgroundColor: Colors.green));
+                  }
+                } else {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(provider.error ?? 'Gagal menghapus'), backgroundColor: AppColors.error));
+                  }
+                }
               }
             },
             child: const Text('Hapus'),

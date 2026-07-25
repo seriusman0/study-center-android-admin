@@ -1,46 +1,69 @@
 appId: com.studycenter.admin.study_center_admin
 ---
+- runScript: generate_names.js
 - launchApp
-- tapOn: "Username atau Email"
-- inputText: "admin@studycenter.com"
-- tapOn: "Password"
-- inputText: "password"
-- tapOn: "Masuk"
-- assertVisible: "Dashboard"
+- extendedWaitUntil:
+    visible:
+      text: ".*(Masuk|Dashboard).*"
+    timeout: 30000
+
+- runFlow:
+    when:
+      visible: "Masuk"
+    file: login.yaml
 
 # Open Drawer
 - tapOn:
     point: 8%, 8%
 
-- tapOn: "Manajemen Cabang"
+- tapOn: "Cabang"
 - assertVisible: "Manajemen Cabang"
 
 # Add Cabang
 - tapOn: "Tambah Cabang"
 - assertVisible: "Tambah Cabang"
-- tapOn: "Nama Cabang"
-- inputText: "Cabang Maestro"
-- tapOn: "Alamat"
+- tapOn:
+    id: "input_nama_cabang"
+- inputText: ${output.cabangName}
+- tapOn:
+    id: "input_alamat_cabang"
 - inputText: "Alamat Maestro"
 - tapOn: "Simpan"
 
 # Check if added
-- assertVisible: "Cabang Maestro"
+- scrollUntilVisible:
+    element:
+      text: ".*${output.cabangName}.*"
+    direction: DOWN
+    timeout: 30000
+- assertNotVisible: "Cabang disimpan"
 
 # Edit Cabang
+- swipe:
+    direction: UP
+- tapOn: ".*${output.cabangName}.*"
+- tapOn: ".*${output.cabangName}.*"
+- assertVisible: "Batal"
 - tapOn:
-    id: "Edit Cabang" # or text
-- assertVisible: "Edit Cabang"
-- tapOn: "Nama Cabang"
-- eraseText: 15
-- inputText: "Cabang Edit"
+    id: "input_nama_cabang"
+- eraseText: 50
+- inputText: "${output.cabangName} Diedit"
+- tapOn:
+    id: "input_alamat_cabang"
 - tapOn: "Simpan"
 
-- assertVisible: "Cabang Edit"
-
 # Delete Cabang
+- scrollUntilVisible:
+    element:
+      text: ".*${output.cabangName} Diedit.*"
+    direction: DOWN
+    timeout: 30000
+- assertNotVisible: "Cabang disimpan"
+- swipe:
+    direction: UP
+- tapOn: ".*${output.cabangName} Diedit.*"
 - tapOn:
-    id: "Hapus Cabang"
-- assertVisible: "Hapus Cabang?"
+    id: "delete_${output.cabangName} Diedit"
+- assertVisible: "Batal"
 - tapOn: "Hapus"
-- assertNotVisible: "Cabang Edit"
+- assertNotVisible: ".*${output.cabangName} Diedit.*"

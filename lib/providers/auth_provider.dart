@@ -6,7 +6,9 @@ import 'package:dio/dio.dart';
 
 class AuthProvider extends ChangeNotifier {
   final ApiService _apiService;
-  final _storage = const FlutterSecureStorage();
+  final _storage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
 
   UserModel? _user;
   bool _isLoading = false;
@@ -20,7 +22,13 @@ class AuthProvider extends ChangeNotifier {
   AuthProvider(this._apiService);
 
   Future<bool> checkAuthStatus() async {
-    final token = await _storage.read(key: 'auth_token');
+    String? token;
+    try {
+      token = await _storage.read(key: 'auth_token');
+    } catch (e) {
+      await _storage.deleteAll();
+      token = null;
+    }
     if (token == null) return false;
 
     try {

@@ -1,0 +1,5 @@
+appId: com.studycenter.admin.study_center_admin
+---
+- tapOn:
+    point: 8%, 8%
+- tapOn: "Keluar"

@@ -1,0 +1,12 @@
+appId: com.studycenter.admin.study_center_admin
+---
+- tapOn:
+    id: "email_input"
+- inputText: "admin@studycenter.com"
+- tapOn:
+    id: "password_input"
+- inputText: "password"
+- tapOn: "Masuk"
+- extendedWaitUntil:
+    visible: "Dashboard"
+    timeout: 10000

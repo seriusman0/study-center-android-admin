@@ -13,8 +13,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _loginController = TextEditingController(text: 'admin@studycenter.com');
-  final _passwordController = TextEditingController(text: 'password');
+  final _loginController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
@@ -124,79 +124,85 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 40),
 
                   // Login Input
-                  TextFormField(
-                    controller: _loginController,
-                    decoration: InputDecoration(
-                      labelText: 'Username atau Email',
-                      labelStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                      prefixIcon: const Icon(Icons.person_outline, size: 20, color: AppColors.textSecondary),
-                      filled: true,
-                      fillColor: Colors.white,
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: AppColors.border),
+                  Semantics(
+                    identifier: 'email_input',
+                    child: TextFormField(
+                      controller: _loginController,
+                      decoration: InputDecoration(
+                        labelText: 'Username atau Email',
+                        labelStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                        prefixIcon: const Icon(Icons.person_outline, size: 20, color: AppColors.textSecondary),
+                        filled: true,
+                        fillColor: Colors.white,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: AppColors.border),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: AppColors.error),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+                        ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: AppColors.error),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: AppColors.error, width: 1.5),
-                      ),
+                      style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty ? 'Masukkan username atau email' : null,
                     ),
-                    style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
-                    validator: (value) =>
-                        value == null || value.trim().isEmpty ? 'Masukkan username atau email' : null,
                   ),
                   const SizedBox(height: 18),
 
                   // Password Input
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      labelStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                      prefixIcon: const Icon(Icons.lock_outline, size: 20, color: AppColors.textSecondary),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                          size: 20,
-                          color: AppColors.textSecondary,
+                  Semantics(
+                    identifier: 'password_input',
+                    child: TextFormField(
+                      controller: _passwordController,
+                      obscureText: _obscurePassword,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                        prefixIcon: const Icon(Icons.lock_outline, size: 20, color: AppColors.textSecondary),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                            size: 20,
+                            color: AppColors.textSecondary,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
                         ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
+                        filled: true,
+                        fillColor: Colors.white,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: AppColors.border),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: AppColors.error),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+                        ),
                       ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: AppColors.border),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: AppColors.error),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: AppColors.error, width: 1.5),
-                      ),
+                      style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
+                      validator: (value) =>
+                          value == null || value.isEmpty ? 'Masukkan password Anda' : null,
                     ),
-                    style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Masukkan password Anda' : null,
                   ),
                   const SizedBox(height: 32),
 

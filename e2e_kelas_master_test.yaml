@@ -1,0 +1,75 @@
+appId: com.studycenter.admin.study_center_admin
+---
+- runScript: generate_names.js
+- launchApp
+- runScript: delay.js
+- runFlow:
+    when:
+      visible: "Masuk"
+    file: login.yaml
+
+- extendedWaitUntil:
+    visible: "Dashboard"
+    timeout: 30000
+
+# Open Drawer
+- tapOn:
+    point: 8%, 8%
+
+- tapOn: "Kelas Master"
+- assertVisible: "Kelas Master"
+
+# Add Kelas
+- tapOn:
+    point: 90%, 90% # Tap on FAB (approximate)
+- assertVisible: "Tambah Kelas"
+- tapOn:
+    id: "input_nama_kelas"
+- inputText: ${output.kelasName}
+- tapOn:
+    id: "input_desc_kelas"
+- inputText: "Deskripsi Maestro"
+- tapOn:
+    id: "input_cabang_kelas"
+- tapOn:
+    point: 50%, 50% # Select first item in dropdown
+- tapOn: "Simpan"
+
+# Check if added
+- assertVisible: "Kelas disimpan"
+- scrollUntilVisible:
+    element:
+      text: ".*${output.kelasName}.*"
+    direction: DOWN
+    timeout: 30000
+
+# Edit Kelas
+- scrollUntilVisible:
+    element:
+      text: "edit_${output.kelasName}"
+    direction: DOWN
+    timeout: 30000
+- tapOn: "edit_${output.kelasName}"
+- assertVisible: "Batal"
+- tapOn:
+    id: "input_desc_kelas"
+- eraseText: 50
+- inputText: " Diedit"
+- tapOn: "Simpan"
+
+# Check if edited
+- extendedWaitUntil:
+    visible: "Kelas disimpan"
+    timeout: 30000
+
+# Delete Kelas
+- scrollUntilVisible:
+    element:
+      text: "delete_${output.kelasName}"
+    direction: DOWN
+    timeout: 30000
+- tapOn: "delete_${output.kelasName}"
+- assertVisible: "Batal"
+- tapOn: "Hapus"
+- assertVisible: "Kelas dihapus"
+- assertNotVisible: ".*${output.kelasName}.*"

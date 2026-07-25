@@ -53,7 +53,7 @@ class _CabangScreenState extends State<CabangScreen> {
                       ],
                     )
                   : ListView.builder(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.only(left: 16, top: 16, right: 16, bottom: 88),
                       itemCount: cabangs.length,
                       itemBuilder: (context, index) {
                         final cabang = cabangs[index];
@@ -61,6 +61,8 @@ class _CabangScreenState extends State<CabangScreen> {
                           margin: const EdgeInsets.only(bottom: 12),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           child: ListTile(
+                            contentPadding: const EdgeInsets.all(16),
+                            onTap: () => _showCabangDialog(context, cabangProvider, cabang: cabang),
                             leading: const CircleAvatar(
                               backgroundColor: AppColors.primary,
                               child: Icon(Icons.apartment, color: Colors.white),
@@ -70,15 +72,21 @@ class _CabangScreenState extends State<CabangScreen> {
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                IconButton(
-                                  tooltip: 'Edit Cabang',
-                                  icon: const Icon(Icons.edit, color: AppColors.primary),
-                                  onPressed: () => _showCabangDialog(context, cabangProvider, cabang: cabang),
+                                Semantics(
+                                  identifier: 'edit_${cabang.nama}',
+                                  child: IconButton(
+                                    icon: const Icon(Icons.edit, color: AppColors.primary),
+                                    onPressed: () => _showCabangDialog(context, cabangProvider, cabang: cabang),
+                                    tooltip: 'Edit Cabang',
+                                  ),
                                 ),
-                                IconButton(
-                                  tooltip: 'Hapus Cabang',
-                                  icon: const Icon(Icons.delete, color: AppColors.error),
-                                  onPressed: () => _confirmDelete(context, cabangProvider, cabang.id),
+                                Semantics(
+                                  identifier: 'delete_${cabang.nama}',
+                                  child: IconButton(
+                                    icon: const Icon(Icons.delete, color: AppColors.error),
+                                    onPressed: () => _confirmDelete(context, cabangProvider, cabang.id),
+                                    tooltip: 'Hapus Cabang',
+                                  ),
                                 ),
                               ],
                             ),
@@ -103,31 +111,41 @@ class _CabangScreenState extends State<CabangScreen> {
 
     showDialog(
       context: context,
-      builder: (context) {
+      barrierDismissible: false,
+      builder: (dialogContext) {
         return AlertDialog(
           title: Text(cabang == null ? 'Tambah Cabang' : 'Edit Cabang'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(labelText: 'Nama Cabang'),
+                Semantics(
+                  identifier: 'input_nama_cabang',
+                  child: TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(labelText: 'Nama Cabang'),
+                  ),
                 ),
-                TextField(
-                  controller: alamatController,
-                  decoration: const InputDecoration(labelText: 'Alamat'),
+                Semantics(
+                  identifier: 'input_alamat_cabang',
+                  child: TextField(
+                    controller: alamatController,
+                    decoration: const InputDecoration(labelText: 'Alamat'),
+                  ),
                 ),
-                TextField(
-                  controller: kontakController,
-                  decoration: const InputDecoration(labelText: 'Kontak'),
+                Semantics(
+                  identifier: 'input_kontak_cabang',
+                  child: TextField(
+                    controller: kontakController,
+                    decoration: const InputDecoration(labelText: 'Kontak'),
+                  ),
                 ),
               ],
             ),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text('Batal'),
             ),
             ElevatedButton(
@@ -143,12 +161,16 @@ class _CabangScreenState extends State<CabangScreen> {
                 } else {
                   success = await provider.updateCabang(cabang.id, data);
                 }
-                if (mounted) {
+                if (dialogContext.mounted) {
                   if (success) {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Cabang disimpan')));
+                    Navigator.pop(dialogContext);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cabang disimpan')));
+                    }
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(provider.error ?? 'Gagal menyimpan')));
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(provider.error ?? 'Gagal menyimpan')));
+                    }
                   }
                 }
               },
@@ -163,20 +185,29 @@ class _CabangScreenState extends State<CabangScreen> {
   void _confirmDelete(BuildContext context, CabangProvider provider, int id) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Hapus Cabang?'),
         content: const Text('Tindakan ini tidak dapat dibatalkan.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Batal'),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error, foregroundColor: Colors.white),
             onPressed: () async {
               final success = await provider.deleteCabang(id);
-              if (mounted && success) {
-                Navigator.pop(context);
+              if (dialogContext.mounted) {
+                if (success) {
+                  Navigator.pop(dialogContext);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cabang dihapus')));
+                  }
+                } else {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(provider.error ?? 'Gagal menghapus')));
+                  }
+                }
               }
             },
             child: const Text('Hapus'),
